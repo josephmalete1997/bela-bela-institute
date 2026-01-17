@@ -1,0 +1,21 @@
+USE belabela_iHL;
+
+-- Create articles table
+CREATE TABLE IF NOT EXISTS articles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  excerpt VARCHAR(500) NULL,
+  content LONGTEXT NOT NULL,
+  author_id INT NULL,
+  featured_image VARCHAR(255) NULL,
+  tags JSON NULL,
+  is_published TINYINT(1) NOT NULL DEFAULT 0,
+  published_at DATETIME NULL,
+  views INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX (is_published),
+  INDEX (published_at)
+);

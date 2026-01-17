@@ -1,0 +1,239 @@
+/* ================================
+   ADMIN UI – SOTA
+================================ */
+* { box-sizing: border-box; }
+
+body.admin-body {
+  margin: 0;
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: #f7fafc;
+  color: #0f172a;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  background: linear-gradient(180deg, #0ea5e9, #2563eb);
+  color: #ffffff;
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 0px;
+}
+
+.admin-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 1.6rem;
+}
+.admin-brand span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.9);
+}
+
+.admin-nav a {
+  display: block;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.95);
+  text-decoration: none;
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+  transition: background 0.18s ease, transform 0.12s ease;
+}
+
+.admin-nav a:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateX(4px);
+}
+
+.admin-nav .logout {
+  margin-top: 2rem;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Main */
+.admin-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #eef2f7;
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.03);
+}
+
+/* Content */
+.admin-content {
+  padding: 2rem;
+}
+
+/* Cards */
+.admin-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid #eef2f7;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.03);
+}
+
+/* Tables */
+.admin-table,table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 0.9rem;
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.admin-table td {
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-table tr:hover {
+  background: #f1f5f9;
+}
+
+/* Forms */
+.admin-form label {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  margin-top: 0.3rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e6eef8;
+  font-family: inherit;
+  background: #fff;
+}
+
+.admin-form textarea {
+  resize: vertical;
+}
+
+/* Buttons */
+.btn-admin {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg,#0ea5e9,#2563eb);
+  color: #ffffff;
+  box-shadow: 0 8px 30px rgba(37,99,235,0.08);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #eef2f7;
+}
+
+/* Badges */
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-red { background: #fee2e2; color: #7f1d1d; }
+.badge-blue { background: #dbeafe; color: #1e3a8a; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    display: none;
+  }
+}
+
+
+
+.admin-grid-3{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-grid-2{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card{
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+}
+.stat-title{ color:#64748b; font-size:.85rem; }
+.stat-value{ font-size:1.8rem; font-weight:800; color:#0f172a; }
+
+.clean-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:.7rem;
+}
+.clean-list li{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:.6rem .75rem;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#fff;
+}
+
+.pill{
+  font-size:.75rem;
+  padding:.25rem .55rem;
+  border-radius:999px;
+  background:#f1f5f9;
+  border:1px solid #e5e7eb;
+}
+
+@media (max-width: 900px){
+  .admin-grid-3, .admin-grid-2{ grid-template-columns: 1fr; }
+}
