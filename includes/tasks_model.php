@@ -76,14 +76,19 @@ function tasks_assign_reviewers(int $task_id, int $submitter_id, int $limit = 5)
     JOIN task_progress tp ON tp.user_id = u.id AND tp.status = 'completed'
     JOIN tasks t ON t.id = tp.task_id AND t.type = 'project' AND t.course_id = :cid
     LEFT JOIN task_reviewer_assignments tra
-      ON tra.task_id = :tid AND tra.submitter_id = :sid AND tra.reviewer_id = u.id
+      ON tra.task_id = :tid AND tra.submitter_id = :sid_join AND tra.reviewer_id = u.id
     WHERE u.role = 'student'
-      AND u.id <> :sid
+      AND u.id <> :sid_exclude
       AND tra.reviewer_id IS NULL
     ORDER BY RAND()
     LIMIT {$need}
   ");
-  $stmt->execute([':cid'=>$course_id, ':tid'=>$task_id, ':sid'=>$submitter_id]);
+  $stmt->execute([
+    ':cid'=>$course_id,
+    ':tid'=>$task_id,
+    ':sid_join'=>$submitter_id,
+    ':sid_exclude'=>$submitter_id
+  ]);
   $candidates = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
   if ($candidates) {
@@ -212,25 +217,11 @@ function tasks_list_statuses(): array {
 }
 
 function tasks_add_review(int $task_id, int $submitter_id, int $reviewer_id, string $comment, ?bool $is_competent): int {
-  // Only allow reviewers who have completed a relevant project for the same course, or admins
-  $stmt = db()->prepare("SELECT role FROM users WHERE id = :id LIMIT 1");
-  $stmt->execute([':id' => $reviewer_id]);
-  $u = $stmt->fetch();
-  if ($u && ($u['role'] ?? '') === 'admin') {
-    // admin allowed
-  } else {
-    // check reviewer has completed a project for the same course
-    $t = tasks_find($task_id);
-    $course_id = $t['course_id'] ?? null;
-    if (empty($course_id)) {
-      return 0;
-    }
-    $chk = db()->prepare("SELECT COUNT(*) as c FROM tasks WHERE submitter_id = :uid AND course_id = :cid AND status = 'completed' AND type = 'project'");
-    $chk->execute([':uid' => $reviewer_id, ':cid' => $course_id]);
-    $row = $chk->fetch();
-    if (!($row && (int)($row['c'] ?? 0) > 0)) {
-      return 0; // not allowed to review
-    }
+  if ($reviewer_id === $submitter_id) {
+    return 0; // no self-review
+  }
+  if (!tasks_user_can_review($reviewer_id, $task_id)) {
+    return 0;
   }
 
   $stmt = db()->prepare("INSERT INTO task_reviews (task_id,submitter_id,reviewer_id,comment,is_competent) VALUES (:task_id,:submitter_id,:reviewer_id,:comment,:is_competent)");
