@@ -52,17 +52,39 @@ require __DIR__ . "/layout/header.php";
           <h3><?= e($col) ?></h3>
           <div class="kanban-list" data-col="<?= e($col) ?>">
             <?php foreach ($cards as $card): ?>
-              <?php $card_status = $card['user_status'] ?? ($card['status'] ?? 'backlog'); ?>
+              <?php
+              $card_status = $card['user_status'] ?? ($card['status'] ?? 'backlog');
+              $assigned_reviewers = [];
+              if ($card['type'] === 'project') {
+                $summary = tasks_get_review_summary((int)$card['id'], (int)$user_id);
+                $assigned_reviewers = tasks_list_assigned_reviewers((int)$card['id'], (int)$user_id);
+                if ($card_status === 'in_review' && $summary['not_competent'] > 0) {
+                  tasks_update_status_for_user((int)$card['id'], (int)$user_id, 'review_feedback', 0);
+                  $card_status = 'review_feedback';
+                }
+              }
+              ?>
               <div class="kanban-card <?= $card['type'] === 'topic' ? 'card-topic' : 'card-project' ?>" draggable="true" data-id="<?= (int)$card['id'] ?>">
                 <strong class="kanban-card-title"><?= e($card['title'] ?: 'Untitled Task') ?></strong>
                 <div class="kanban-meta">Type: <?= e($card['type']) ?> • By: <?= e((string)($card['submitter_id'] ?? '')) ?></div>
                 <?php if ($card['type'] === 'project'): ?>
-                  <?php
-                  $stmt_rev = db()->prepare("SELECT u.email FROM task_reviews tr JOIN users u ON u.id = tr.reviewer_id WHERE tr.task_id = ?");
-                  $stmt_rev->execute([$card['id']]);
-                  $reviewers = $stmt_rev->fetchAll(PDO::FETCH_COLUMN);
-                  if ($reviewers): ?>
-                    <div class="kanban-meta reviewers">Reviewers: <?= implode(', ', array_map('e', $reviewers)) ?></div>
+                  <?php if (!empty($assigned_reviewers)): ?>
+                    <div class="kanban-meta reviewers">
+                      Reviewers:
+                      <?php foreach ($assigned_reviewers as $rev): ?>
+                        <button
+                          type="button"
+                          class="reviewer-chip"
+                          data-task-id="<?= (int)$card['id'] ?>"
+                          data-submitter-id="<?= (int)$user_id ?>"
+                          data-reviewer-id="<?= (int)($rev['id'] ?? 0) ?>"
+                          data-reviewer-name="<?= e($rev['full_name'] ?? '') ?>">
+                          <?= e($rev['full_name'] ?? 'Reviewer') ?>
+                        </button>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php else: ?>
+                    <div class="kanban-meta reviewers">Reviewers: None yet</div>
                   <?php endif; ?>
                 <?php endif; ?>
                 <div class="kanban-actions">
@@ -91,7 +113,16 @@ require __DIR__ . "/layout/header.php";
                       </form>
                     <?php endif; ?>
                   <?php elseif ($card_status === 'in_review'): ?>
-                    <a href="task_view.php?id=<?= (int)$card['id'] ?>&submitter_id=<?= (int)$user_id ?>" class="btn btn-small">Review</a>
+                    <?php if ($card['type'] === 'project'): ?>
+                      <form method="post" style="display:inline;">
+                        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+                        <input type="hidden" name="task_id" value="<?= (int)$card['id'] ?>">
+                        <input type="hidden" name="new_status" value="studying">
+                        <button type="submit" class="btn btn-small">Cancel</button>
+                      </form>
+                    <?php else: ?>
+                      <a href="task_view.php?id=<?= (int)$card['id'] ?>&submitter_id=<?= (int)$user_id ?>" class="btn btn-small">Review</a>
+                    <?php endif; ?>
                   <?php endif; ?>
                 </div>
               </div>
@@ -101,6 +132,28 @@ require __DIR__ . "/layout/header.php";
       <?php endforeach; ?>
     </div>
   </div>
+
+<div class="modal" id="messageModal" aria-hidden="true">
+  <div class="modal-card">
+    <h3>Message Reviewer</h3>
+    <form method="post" action="../api/task_message.php" id="messageForm">
+      <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+      <input type="hidden" name="task_id" id="msgTaskId">
+      <input type="hidden" name="submitter_id" id="msgSubmitterId">
+      <input type="hidden" name="recipient_id" id="msgReviewerId">
+      <label>To
+        <input type="text" id="msgReviewerName" readonly>
+      </label>
+      <label>Message
+        <textarea name="message" required></textarea>
+      </label>
+      <div class="kanban-actions">
+        <button type="submit" class="btn btn-small">Send</button>
+        <button type="button" class="btn btn-small btn-ghost" id="closeMessageModal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 </main>
 
 <script>
@@ -109,6 +162,20 @@ document.querySelectorAll('.kanban-card').forEach(c => {
   c.addEventListener('dragstart', e => { dragged = c; c.style.opacity = '0.6'; });
   c.addEventListener('dragend', e => { dragged = null; c.style.opacity = ''; });
 });
+
+const modal = document.getElementById('messageModal');
+const closeBtn = document.getElementById('closeMessageModal');
+document.querySelectorAll('.reviewer-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('msgTaskId').value = btn.dataset.taskId || '';
+    document.getElementById('msgSubmitterId').value = btn.dataset.submitterId || '';
+    document.getElementById('msgReviewerId').value = btn.dataset.reviewerId || '';
+    document.getElementById('msgReviewerName').value = btn.dataset.reviewerName || 'Reviewer';
+    modal.classList.add('open');
+  });
+});
+closeBtn?.addEventListener('click', () => modal.classList.remove('open'));
+modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
 
 const lists = document.querySelectorAll('.kanban-list');
 lists.forEach(list => {
@@ -135,3 +202,10 @@ lists.forEach(list => {
 
 <?php require __DIR__ . "/../includes/footer.php";
 require __DIR__ . "/layout/footer.php";?>
+
+
+
+
+
+
+

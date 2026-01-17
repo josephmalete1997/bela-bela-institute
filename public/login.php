@@ -48,7 +48,13 @@ if (is_post()) {
         $cache_file = sys_get_temp_dir() . '/rate_limit_' . md5($rate_limit_key) . '.json';
         @unlink($cache_file);
         
-        $redirect = $u["role"] === "admin" ? "../admin/dashboard.php" : "../student/index.php";
+        if ($u["role"] === "admin") {
+          $redirect = "../admin/dashboard.php";
+        } elseif ($u["role"] === "educator") {
+          $redirect = "../admin/reviews.php";
+        } else {
+          $redirect = "../student/index.php";
+        }
         redirect($redirect);
       }
     }

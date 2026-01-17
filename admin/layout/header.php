@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . "/../../app/bootstrap.php";
-require_role('admin');
+require_any_role(['admin','educator']);
 $user = auth_user();
+$is_admin = ($user['role'] ?? '') === 'admin';
 ?>
 <!doctype html>
 <html lang="en">
@@ -36,15 +37,25 @@ $user = auth_user();
             </div>
 
             <nav class="admin-nav">
-                <a href="./dashboard">Dashboard</a>
-                <a href="./courses">Courses</a>
-                <a href="./articles.php">News</a>
-                <a href="./intakes">Intakes</a>
-                <a href="./applications">Applications</a>
-                <a href="./students">Students</a>
-                <a href="./task_list">Tasks</a>
-                <a href="./overrides">Overrides</a>
-                <a href="./payments">Payments</a>
+                <?php if ($is_admin): ?>
+                    <a href="./dashboard">Dashboard</a>
+                    <a href="./courses">Courses</a>
+                    <a href="./articles.php">News</a>
+                    <a href="./intakes">Intakes</a>
+                    <a href="./applications">Applications</a>
+                    <a href="./students">Students</a>
+                    <a href="./educators.php">Educators</a>
+                    <a href="./task_list">Tasks</a>
+                    <a href="./task_edit_requests.php">Edit Requests</a>
+                    <a href="./reviews.php">Reviews</a>
+                    <a href="./overrides">Overrides</a>
+                    <a href="./payments">Payments</a>
+                <?php else: ?>
+                    <a href="./task_list.php">Tasks</a>
+                    <a href="./task_create.php">Create Task</a>
+                    <a href="./reviews.php">Reviews</a>
+                    <a href="./educator_progress.php">Progress</a>
+                <?php endif; ?>
                 <a href="./../public/logout" class="logout">Logout</a>
             </nav>
         </aside>

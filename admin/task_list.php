@@ -1,20 +1,49 @@
 <?php
 require_once __DIR__ . "/../app/bootstrap.php";
-require_role('admin');
+require_any_role(['admin','educator']);
 require_once __DIR__ . "/../includes/tasks_model.php";
+$user = auth_user();
+$is_admin = ($user['role'] ?? '') === 'admin';
+$pending_requests = [];
+if (!$is_admin) {
+  $stmt = db()->prepare("
+    SELECT r.id, r.task_id, r.created_at, t.title AS task_title
+    FROM task_edit_requests r
+    JOIN tasks t ON t.id = r.task_id
+    WHERE r.educator_id = :eid AND r.request_status = 'pending'
+    ORDER BY r.created_at DESC
+  ");
+  $stmt->execute([':eid' => (int)$user['id']]);
+  $pending_requests = $stmt->fetchAll();
+}
 // fetch tasks - tasks are visible to all enrolled students in the course
 $tasks = db()->query("SELECT t.*, c.title as course_title, u.full_name as submitter_name FROM tasks t LEFT JOIN courses c ON c.id = t.course_id LEFT JOIN users u ON u.id = t.submitter_id ORDER BY t.created_at DESC")->fetchAll();
 require __DIR__ . "/layout/header.php";
 ?>
 <main class="section"><div class="container">
   <h2>Course Tasks</h2>
+  <?php if (!$is_admin && $pending_requests): ?>
+    <div class="card" style="margin-bottom:12px;">
+      <h3>My Pending Edit Requests</h3>
+      <ul class="mini">
+        <?php foreach ($pending_requests as $req): ?>
+          <li>
+            <a href="task_edit.php?id=<?= e($req['task_id']) ?>">#<?= e($req['task_id']) ?> — <?= e($req['task_title']) ?></a>
+            (<?= e($req['created_at']) ?>)
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
   <p>
     <a class="btn" href="task_create.php"><i class="fa fa-plus"></i> Create Task</a>
     <a class="btn" href="task_edit.php"><i class="fa fa-edit"></i> Edit Task</a>
-    <a class="btn" href="task_import.php"><i class="fa fa-file-import"></i> Import CSV</a>
+    <?php if ($is_admin): ?>
+      <a class="btn" href="task_import.php"><i class="fa fa-file-import"></i> Import CSV</a>
+    <?php endif; ?>
   </p>
   <table class="table" style="width:100%;border-collapse:collapse;margin-top:12px;">
-    <thead><tr><th>ID</th><th>Title</th><th>Course</th><th>Type</th><th>Status</th><th>Submitter</th><th>Enrolled Students</th><th>Position</th><th>URL</th><th>Created</th><th>Actions</th></tr></thead>
+    <thead><tr><th>ID</th><th>Title</th><th>Course</th><th>Type</th><th>Submitter</th><th>Enrolled Students</th><th>Position</th><th>URL</th><th>Created</th><th>Actions</th></tr></thead>
     <tbody>
       <?php foreach($tasks as $t): ?>
         <tr>
@@ -22,7 +51,6 @@ require __DIR__ . "/layout/header.php";
           <td><?= e($t['title']) ?></td>
           <td><?= e($t['course_title'] ?? '-') ?></td>
           <td><?= e($t['type']) ?></td>
-          <td><?= e($t['status']) ?></td>
           <td><?= e($t['submitter_name'] ?? '-') ?></td>
           <td><?= $t['course_id'] ? 'All Enrolled' : '-' ?></td>
           <td><?= e($t['position']) ?></td>
@@ -30,11 +58,13 @@ require __DIR__ . "/layout/header.php";
           <td><?= e($t['created_at']) ?></td>
           <td>
             <a class="btn" href="task_edit.php?id=<?= e($t['id']) ?>">Edit</a>
-            <form method="post" action="api/delete_task.php" style="display:inline">
-              <input type="hidden" name="id" value="<?= e($t['id']) ?>" />
-              <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>" />
-              <button class="btn" onclick="return confirm('Delete task?')">Delete</button>
-            </form>
+            <?php if ($is_admin): ?>
+              <form method="post" action="api/delete_task.php" style="display:inline">
+                <input type="hidden" name="id" value="<?= e($t['id']) ?>" />
+                <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>" />
+                <button class="btn" onclick="return confirm('Delete task?')">Delete</button>
+              </form>
+            <?php endif; ?>
           </td>
         </tr>
       <?php endforeach; ?>

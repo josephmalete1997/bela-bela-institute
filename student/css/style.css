@@ -257,6 +257,39 @@ h3 {
   gap: 6px;
 }
 
+.reviewer-chip {
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  width: min(420px, 92vw);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
 /* Badges */
 .badge {
   display: inline-block;

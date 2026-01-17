@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../app/bootstrap.php";
-require_role('admin');
+require_any_role(['admin','educator']);
+$role = auth_user()['role'] ?? 'admin';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   csrf_verify();
   $title = trim($_POST['title'] ?? '');
@@ -9,12 +10,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $course_id = (int)($_POST['course_id'] ?? 0) ?: null;
   $status = $_POST['status'] ?? 'backlog';
   $url = trim($_POST['url'] ?? '');
+  if ($role === 'educator' && $course_id) {
+    require_once __DIR__ . "/../includes/tasks_model.php";
+    if (!tasks_is_course_educator((int)$course_id, (int)auth_user()['id'])) {
+      http_response_code(403);
+      exit('Forbidden');
+    }
+  }
   $data = ['title'=>$title,'type'=>$type,'description'=>$description,'course_id'=>$course_id,'submitter_id'=>null,'assigned_user_id'=>null,'status'=>$status,'position'=>0,'url'=>$url];
   require_once __DIR__ . "/../includes/tasks_model.php";
   $id = tasks_create($data);
+  if ($role === 'educator') {
+    redirect('task_create.php');
+  }
   redirect('task_list.php');
 }
-$courses = db()->query("SELECT id,title FROM courses ORDER BY title")->fetchAll();
+if ($role === 'educator') {
+  $stmt = db()->prepare("SELECT c.id, c.title FROM courses c JOIN course_educators ce ON ce.course_id = c.id WHERE ce.educator_id = :eid ORDER BY c.title");
+  $stmt->execute([':eid' => (int)auth_user()['id']]);
+  $courses = $stmt->fetchAll();
+} else {
+  $courses = db()->query("SELECT id,title FROM courses ORDER BY title")->fetchAll();
+}
 require __DIR__ . "/layout/header.php";
 ?>
 <main class="section"><div class="container">

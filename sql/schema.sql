@@ -8,7 +8,7 @@ CREATE TABLE users (
   email VARCHAR(180) NOT NULL UNIQUE,
   phone VARCHAR(50) NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('admin','student') NOT NULL DEFAULT 'student',
+  role ENUM('admin','student','educator') NOT NULL DEFAULT 'student',
   status ENUM('active','blocked') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -26,6 +26,17 @@ CREATE TABLE courses (
   kanban_position INT NOT NULL DEFAULT 0,
   fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- COURSE EDUCATORS
+CREATE TABLE course_educators (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  course_id INT NOT NULL,
+  educator_id INT NOT NULL,
+  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_course_educator (course_id, educator_id),
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (educator_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- INTAKES (course runs)

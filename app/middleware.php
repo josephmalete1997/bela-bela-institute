@@ -24,3 +24,12 @@ function require_role(string $role): void {
     exit("Forbidden");
   }
 }
+
+function require_any_role(array $roles): void {
+  require_login();
+  $u = auth_user();
+  if (!$u || !in_array($u["role"], $roles, true)) {
+    http_response_code(403);
+    exit("Forbidden");
+  }
+}
