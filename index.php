@@ -104,6 +104,7 @@ $courses    = $courses ?? [];
                             loading="lazy">
                         <h3><?= htmlspecialchars($course['title'] ?? '') ?></h3>
                         <p><?= htmlspecialchars($course['description'] ?? '') ?></p>
+                        <p><strong>Fee: R<?= number_format($course['fee'] ?? 0, 2) ?></strong></p>
 
                         <?php if (!empty($course['highlights']) && is_array($course['highlights'])): ?>
                             <ul class="mini">

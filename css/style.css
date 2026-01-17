@@ -259,7 +259,9 @@ a {
   padding: 8px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(90deg, var(--brand), var(--brand2));
+  color: white;
+  font-weight: 600;
 }
 
 /* Sections */
@@ -312,6 +314,13 @@ a {
   border-radius: calc(var(--radius) - 4px);
   padding: 18px;
   color: var(--text);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover,
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(2,6,23,0.1);
 }
 
 .card img {

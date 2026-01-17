@@ -35,6 +35,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       VALUES(?,?,?,?,?,?)
     ");
         $stmt->execute([$course_id, $intake_id ?: null, $full, $email, $phone, $motivation]);
+
+        // Notify admins
+        $admin_ids = db()->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($admin_ids as $admin_id) {
+            db()->prepare("INSERT INTO notifications(user_id, title, message, link) VALUES(?, ?, ?, ?)")->execute([
+                $admin_id,
+                'New Application Received',
+                "Application from $full for course ID $course_id",
+                'admin/applications'
+            ]);
+        }
+
         $ok = "Application submitted. We will contact you soon.";
     }
 }

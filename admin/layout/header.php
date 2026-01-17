@@ -38,10 +38,13 @@ $user = auth_user();
             <nav class="admin-nav">
                 <a href="./dashboard">Dashboard</a>
                 <a href="./courses">Courses</a>
-                    <a href="./articles.php">News</a>
+                <a href="./articles.php">News</a>
                 <a href="./intakes">Intakes</a>
                 <a href="./applications">Applications</a>
                 <a href="./students">Students</a>
+                <a href="./task_list">Tasks</a>
+                <a href="./overrides">Overrides</a>
+                <a href="./payments">Payments</a>
                 <a href="./../public/logout" class="logout">Logout</a>
             </nav>
         </aside>

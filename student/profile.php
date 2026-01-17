@@ -77,7 +77,7 @@ $userData = $stmt->fetch() ?: [];
   <?php if ($success): ?><p style="color:green;"><?= e($success) ?></p><?php endif; ?>
 
   <?php $avatar = $userData["avatar"] ?? "assets/avatar-placeholder.png"; ?>
-  <img src="/public/<?= e($avatar) ?>" width="120" height="120" style="border-radius:50%; border:1px solid #ccc; object-fit:cover;" alt="Profile image">
+  <img src="../public/<?= e($avatar) ?>" width="120" height="120" style="border-radius:50%; border:1px solid #ccc; object-fit:cover;" alt="Profile image">
 
   <form method="post" enctype="multipart/form-data" style="margin-top:12px;">
     <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">

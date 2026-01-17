@@ -1,6 +1,42 @@
    <?php
-    include 'includes/header.php'
-    ?>
+require_once __DIR__ . '/app/bootstrap.php';
+
+$courses = db()->query("SELECT id, title, fee FROM courses WHERE is_active=1 ORDER BY title")->fetchAll();
+
+$ok = "";
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    csrf_verify();
+    $name = trim($_POST["name"] ?? "");
+    $phone = trim($_POST["phone"] ?? "");
+    $email = trim($_POST["email"] ?? "");
+    $course_name = trim($_POST["course"] ?? "");
+    $message = trim($_POST["message"] ?? "");
+
+    if (!$name || !$email || !$phone || !$course_name) {
+        $error = "Please complete required fields.";
+    } else {
+        // Find course_id by title
+        $stmt = db()->prepare("SELECT id FROM courses WHERE title = ? LIMIT 1");
+        $stmt->execute([$course_name]);
+        $course = $stmt->fetch();
+        if (!$course) {
+            $error = "Invalid course selected.";
+        } else {
+            $course_id = $course['id'];
+            $stmt = db()->prepare("INSERT INTO applications(course_id, full_name, email, phone, motivation) VALUES(?, ?, ?, ?, ?)");
+            $stmt->execute([$course_id, $name, $email, $phone, $message]);
+
+            $ok = "Application submitted. We will contact you soon.";
+        }
+    }
+}
+?>
+
+<?php
+include 'includes/header.php'
+?>
    <!-- Apply -->
    <section class="section" id="apply">
        <div class="container">
@@ -17,7 +53,12 @@
                    </ul>
                </div>
 
-               <form class="form" id="applyForm">
+               <form class="form" id="applyForm" method="post">
+                   <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+
+                   <?php if ($ok): ?><p style="color:green;"><?= e($ok) ?></p><?php endif; ?>
+                   <?php if ($error): ?><p style="color:red;"><?= e($error) ?></p><?php endif; ?>
+
                    <label>
                        Full Name
                        <input name="name" type="text" placeholder="Your name" required />
@@ -37,12 +78,9 @@
                        Course Interested In
                        <select name="course" required>
                            <option value="" disabled selected>Select a course</option>
-                           <option>Web Development</option>
-                           <option>Full-Stack Development</option>
-                           <option>Data & Analytics</option>
-                           <option>Networking Essentials</option>
-                           <option>Cybersecurity Basics</option>
-                           <option>Digital Literacy</option>
+                           <?php foreach ($courses as $c): ?>
+                               <option value="<?= e($c['title']) ?>"><?= e($c['title']) ?> - R<?= number_format($c['fee'], 2) ?></option>
+                           <?php endforeach; ?>
                        </select>
                    </label>
 

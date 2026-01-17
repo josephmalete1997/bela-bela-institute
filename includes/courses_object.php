@@ -6,6 +6,7 @@ $courses = [
     "image" => "images/a2.png",
     "alt" => "Web Development",
     "description" => "HTML, CSS, JavaScript, responsive design, and modern web practices.",
+    "fee" => 2500.00,
     "highlights" => [
       "Portfolio website",
       "Landing pages",
@@ -18,6 +19,7 @@ $courses = [
     "image" => "images/a3.png",
     "alt" => "Full-Stack Development",
     "description" => "Build complete apps: front-end + back-end + databases.",
+    "fee" => 4500.00,
     "highlights" => [
       "APIs & authentication",
       "SQL basics",
@@ -30,6 +32,7 @@ $courses = [
     "image" => "images/a1.png",
     "alt" => "Introduction to Robotics",
     "description" => "Build and program robots while learning electronics, sensors, and automation fundamentals.",
+    "fee" => 3000.00,
     "highlights" => [
       "Electronics & circuits",
       "Sensors & actuators",
@@ -42,6 +45,7 @@ $courses = [
     "image" => "images/a4.png",
     "alt" => "Graphic Design",
     "description" => "Learn visual design principles and create professional graphics for print and digital media.",
+    "fee" => 2000.00,
     "highlights" => [
       "Canva / Adobe tools",
       "Logos & branding",

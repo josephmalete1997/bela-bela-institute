@@ -2,8 +2,8 @@
 require_once __DIR__ . "/../app/bootstrap.php";
 require_role('admin');
 require_once __DIR__ . "/../includes/tasks_model.php";
-// fetch tasks
-$tasks = db()->query("SELECT t.*, c.title as course_title, u.full_name as submitter_name, au.full_name as assigned_name FROM tasks t LEFT JOIN courses c ON c.id = t.course_id LEFT JOIN users u ON u.id = t.submitter_id LEFT JOIN users au ON au.id = t.assigned_user_id ORDER BY t.created_at DESC")->fetchAll();
+// fetch tasks - tasks are visible to all enrolled students in the course
+$tasks = db()->query("SELECT t.*, c.title as course_title, u.full_name as submitter_name FROM tasks t LEFT JOIN courses c ON c.id = t.course_id LEFT JOIN users u ON u.id = t.submitter_id ORDER BY t.created_at DESC")->fetchAll();
 require __DIR__ . "/layout/header.php";
 ?>
 <main class="section"><div class="container">
@@ -14,7 +14,7 @@ require __DIR__ . "/layout/header.php";
     <a class="btn" href="task_import.php"><i class="fa fa-file-import"></i> Import CSV</a>
   </p>
   <table class="table" style="width:100%;border-collapse:collapse;margin-top:12px;">
-    <thead><tr><th>ID</th><th>Title</th><th>Course</th><th>Type</th><th>Status</th><th>Submitter</th><th>Assigned</th><th>Position</th><th>URL</th><th>Created</th><th>Actions</th></tr></thead>
+    <thead><tr><th>ID</th><th>Title</th><th>Course</th><th>Type</th><th>Status</th><th>Submitter</th><th>Enrolled Students</th><th>Position</th><th>URL</th><th>Created</th><th>Actions</th></tr></thead>
     <tbody>
       <?php foreach($tasks as $t): ?>
         <tr>
@@ -24,7 +24,7 @@ require __DIR__ . "/layout/header.php";
           <td><?= e($t['type']) ?></td>
           <td><?= e($t['status']) ?></td>
           <td><?= e($t['submitter_name'] ?? '-') ?></td>
-          <td><?= e($t['assigned_name'] ?? '-') ?></td>
+          <td><?= $t['course_id'] ? 'All Enrolled' : '-' ?></td>
           <td><?= e($t['position']) ?></td>
           <td><?php if ($t['url']): ?><a href="<?= e($t['url']) ?>" target="_blank">Link</a><?php else: ?>-<?php endif; ?></td>
           <td><?= e($t['created_at']) ?></td>

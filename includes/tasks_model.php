@@ -16,7 +16,7 @@ function tasks_find(int $id): ?array {
 }
 
 function tasks_create(array $data): int {
-  $stmt = db()->prepare("INSERT INTO tasks (title,type,description,course_id,submitter_id,assigned_user_id,status,position) VALUES (:title,:type,:description,:course_id,:submitter_id,:assigned_user_id,:status,:position)");
+  $stmt = db()->prepare("INSERT INTO tasks (title,type,description,course_id,submitter_id,assigned_user_id,status,position,url) VALUES (:title,:type,:description,:course_id,:submitter_id,:assigned_user_id,:status,:position,:url)");
   $stmt->execute([
     ':title'=>$data['title'] ?? 'Untitled',
     ':type'=>$data['type'] ?? 'topic',
@@ -26,6 +26,7 @@ function tasks_create(array $data): int {
     ':assigned_user_id'=>$data['assigned_user_id'] ?? null,
     ':status'=>$data['status'] ?? 'backlog',
     ':position'=>$data['position'] ?? 0,
+    ':url'=>$data['url'] ?? null,
   ]);
   return (int)db()->lastInsertId();
 }
@@ -59,13 +60,14 @@ function tasks_update_status_and_position(int $id, string $status, int $position
 }
 
 function tasks_update(int $id, array $data): bool {
-  $stmt = db()->prepare("UPDATE tasks SET title=:title,type=:type,description=:description,assigned_user_id=:assigned_user_id,status=:status WHERE id = :id");
+  $stmt = db()->prepare("UPDATE tasks SET title=:title,type=:type,description=:description,assigned_user_id=:assigned_user_id,status=:status,url=:url WHERE id = :id");
   return $stmt->execute([
     ':title'=>$data['title'] ?? '',
     ':type'=>$data['type'] ?? 'topic',
     ':description'=>$data['description'] ?? null,
     ':assigned_user_id'=>$data['assigned_user_id'] ?? null,
     ':status'=>$data['status'] ?? 'backlog',
+    ':url'=>$data['url'] ?? null,
     ':id'=>$id,
   ]);
 }

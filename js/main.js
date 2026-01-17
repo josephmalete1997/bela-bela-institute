@@ -2,19 +2,20 @@
 // Footer year
 document.getElementById("year").textContent = new Date().getFullYear();
 
-// Fake form submit (replace with your backend / Google Form)
-const applyForm = document.getElementById("applyForm");
-const formNote = document.getElementById("formNote");
+// Back to top button
+const backToTopBtn = document.getElementById('back-to-top');
+if (backToTopBtn) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add('show');
+    } else {
+      backToTopBtn.classList.remove('show');
+    }
+  });
 
-if (applyForm) {
-  applyForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    // Basic UX feedback
-    const data = Object.fromEntries(new FormData(applyForm).entries());
-    console.log("Application submitted:", data);
-
-    formNote.textContent = "Thanks! Your application was received. We will contact you soon.";
-    applyForm.reset();
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
+
+// Application form is now handled by PHP backend

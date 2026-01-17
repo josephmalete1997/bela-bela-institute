@@ -4,12 +4,34 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/app/bootstrap.php';
 
 $id = (int)($_GET["id"] ?? 0);
-if (!$id) redirect("/admin/students.php");
+if (!$id) redirect("students.php");
 
 $stmt = db()->prepare("SELECT * FROM users WHERE id=? AND role='student'");
 $stmt->execute([$id]);
 $student = $stmt->fetch();
-if (!$student) redirect("/admin/students.php");
+if (!$student) redirect("students.php");
+
+// Handle enrollment
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["enroll_intake_id"])) {
+    csrf_verify();
+    $intake_id = (int)($_POST["enroll_intake_id"] ?? 0);
+    if ($intake_id) {
+        $stmt = db()->prepare("INSERT IGNORE INTO enrollments(user_id, intake_id, status) VALUES(?, ?, 'enrolled')");
+        $stmt->execute([$id, $intake_id]);
+        $enrollment_id = db()->lastInsertId();
+
+        // Get course fee
+        $fee_stmt = db()->prepare("SELECT c.fee FROM intakes i JOIN courses c ON c.id = i.course_id WHERE i.id = ?");
+        $fee_stmt->execute([$intake_id]);
+        $fee = $fee_stmt->fetchColumn();
+
+        if ($fee > 0) {
+            db()->prepare("INSERT INTO payments(enrollment_id, amount, status) VALUES(?, ?, 'pending')")->execute([$enrollment_id, $fee]);
+        }
+
+        redirect("?id=" . $id); // reload
+    }
+}
 
 // enrollments
 $enroll = db()->prepare("
@@ -35,6 +57,15 @@ $app = db()->prepare("
 ");
 $app->execute([(string)$student["email"]]);
 $applications = $app->fetchAll();
+
+// available intakes for enrollment
+$intakes = db()->query("
+  SELECT i.id, i.start_date, i.schedule, c.title AS course_title
+  FROM intakes i
+  JOIN courses c ON c.id = i.course_id
+  WHERE i.is_active = 1
+  ORDER BY i.start_date DESC
+")->fetchAll();
 
 require_once __DIR__ . '/layout/header.php';
 ?>
@@ -95,6 +126,18 @@ require_once __DIR__ . '/layout/header.php';
             </tbody>
         </table>
     <?php endif; ?>
+
+    <h4>Enroll in a Course</h4>
+    <form method="post">
+        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+        <select name="enroll_intake_id" required>
+            <option value="">Select intake</option>
+            <?php foreach ($intakes as $i): ?>
+                <option value="<?= (int)$i['id'] ?>"><?= e($i['course_title']) ?> — <?= e($i['schedule']) ?> (<?= e($i['start_date']) ?>)</option>
+            <?php endforeach; ?>
+        </select>
+        <button class="btn-admin btn-primary" type="submit">Enroll Student</button>
+    </form>
 </div>
 
 <div class="admin-card">

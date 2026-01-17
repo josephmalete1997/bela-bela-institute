@@ -2,7 +2,7 @@
 
 <?php
 $id = (int)($_GET["id"] ?? 0);
-$course = ["title"=>"","slug"=>"","description"=>"","image"=>"","highlights"=>"[]","is_active"=>1];
+$course = ["title"=>"","slug"=>"","description"=>"","image"=>"","highlights"=>"[]","is_active"=>1,"fee"=>0.00];
 
 if ($id) {
   $stmt = db()->prepare("SELECT * FROM courses WHERE id=?");
@@ -19,17 +19,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $desc  = trim($_POST["description"] ?? "");
   $image = trim($_POST["image"] ?? "");
   $active = isset($_POST["is_active"]) ? 1 : 0;
+  $fee = (float)($_POST["fee"] ?? 0);
   $highlightsRaw = trim($_POST["highlights"] ?? "[]");
 
   $highlights = json_decode($highlightsRaw, true);
   if (!is_array($highlights)) $highlights = [];
 
   if ($id) {
-    $stmt = db()->prepare("UPDATE courses SET title=?, slug=?, description=?, image=?, highlights=?, is_active=? WHERE id=?");
-    $stmt->execute([$title,$slug,$desc,$image,json_encode($highlights),$active,$id]);
+    $stmt = db()->prepare("UPDATE courses SET title=?, slug=?, description=?, image=?, highlights=?, is_active=?, fee=? WHERE id=?");
+    $stmt->execute([$title,$slug,$desc,$image,json_encode($highlights),$active,$fee,$id]);
   } else {
-    $stmt = db()->prepare("INSERT INTO courses(title,slug,description,image,highlights,is_active) VALUES(?,?,?,?,?,?)");
-    $stmt->execute([$title,$slug,$desc,$image,json_encode($highlights),$active]);
+    $stmt = db()->prepare("INSERT INTO courses(title,slug,description,image,highlights,is_active,fee) VALUES(?,?,?,?,?,?,?)");
+    $stmt->execute([$title,$slug,$desc,$image,json_encode($highlights),$active,$fee]);
   }
 
   redirect("./courses");
@@ -56,6 +57,9 @@ include './layout/header.php';
 
     <label>Image path</label><br>
     <input name="image" value="<?= e($course["image"] ?? "") ?>"><br><br>
+
+    <label>Fee (R)</label><br>
+    <input name="fee" type="number" step="0.01" value="<?= e($course["fee"] ?? 0) ?>" required><br><br>
 
     <label>Highlights (JSON array)</label><br>
     <textarea name="highlights" rows="6"><?= e($course["highlights"] ?? "[]") ?></textarea><br><br>

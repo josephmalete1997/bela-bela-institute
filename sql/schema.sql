@@ -22,6 +22,9 @@ CREATE TABLE courses (
   image VARCHAR(255) NULL,
   highlights JSON NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  kanban_status VARCHAR(32) NOT NULL DEFAULT 'backlog',
+  kanban_position INT NOT NULL DEFAULT 0,
+  fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -97,4 +100,70 @@ CREATE TABLE IF NOT EXISTS articles (
   FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
   INDEX (is_published),
   INDEX (published_at)
+);
+
+-- TASKS
+CREATE TABLE IF NOT EXISTS tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  type ENUM('topic','project') NOT NULL DEFAULT 'topic',
+  description TEXT NULL,
+  course_id INT NULL,
+  submitter_id INT NULL,
+  assigned_user_id INT NULL,
+  status ENUM('backlog','studying','in_review','review_feedback','completed') NOT NULL DEFAULT 'backlog',
+  position INT NOT NULL DEFAULT 0,
+  url VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (submitter_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- REVIEWS
+CREATE TABLE IF NOT EXISTS task_reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
+  reviewer_id INT NULL,
+  comment TEXT NOT NULL,
+  is_competent TINYINT(1) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- TASK REVIEW OVERRIDES
+CREATE TABLE IF NOT EXISTS task_review_overrides (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
+  user_id INT NOT NULL,
+  granted_by INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY ux_task_user (task_id,user_id),
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
+-- NOTIFICATIONS
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(191) NOT NULL,
+  message TEXT,
+  link VARCHAR(255) DEFAULT NULL,
+  is_read TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX (user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- PAYMENTS
+CREATE TABLE payments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  enrollment_id INT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  status ENUM('pending','paid','failed') NOT NULL DEFAULT 'pending',
+  payment_method VARCHAR(50) NULL,
+  transaction_id VARCHAR(255) NULL,
+  paid_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE
 );

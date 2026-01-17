@@ -1,0 +1,4 @@
+USE belabela_iHL;
+
+ALTER TABLE courses
+  ADD COLUMN fee DECIMAL(10,2) NOT NULL DEFAULT 0.00;

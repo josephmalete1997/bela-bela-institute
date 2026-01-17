@@ -7,9 +7,29 @@ $id = (int)($_GET['id'] ?? 0);
 $task = tasks_find($id);
 if (!$task) { http_response_code(404); echo 'Not found'; exit; }
 
+// Check if student is enrolled in the course for this task (or if it's a general task)
+$user_id = $_SESSION['user']['id'];
+if ($task['course_id'] !== null) {
+    $stmt = db()->prepare("
+        SELECT 1 FROM enrollments e 
+        JOIN intakes i ON e.intake_id = i.id 
+        WHERE e.user_id = ? AND i.course_id = ? AND e.status = 'enrolled'
+        LIMIT 1
+    ");
+    $stmt->execute([$user_id, $task['course_id']]);
+    $enrolled = $stmt->fetch();
+
+    if (!$enrolled) {
+        http_response_code(403);
+        echo 'Access denied: You are not enrolled in this course.';
+        exit;
+    }
+}
+
 $error = '';
 $user_id = auth_user()['id'] ?? null;
 $can_review = tasks_user_can_review($user_id, $id);
+$can_review = $can_review && ($task['submitter_id'] != $user_id);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // submit review/comment
   if (!$can_review) {
@@ -48,6 +68,9 @@ require __DIR__ . "/layout/header.php";
   <div class="container">
     <h2><?= e($task['title']) ?></h2>
     <p>Type: <?= e($task['type']) ?> • Status: <?= e($task['status']) ?></p>
+    <?php if ($task['type'] === 'project' && !empty($task['url'])): ?>
+      <p>Project URL: <a href="<?= e($task['url']) ?>" target="_blank" class="btn btn-small">View Content</a></p>
+    <?php endif; ?>
     <div class="card" style="margin-bottom:12px;"> <?= nl2br(e($task['description'] ?? '')) ?> </div>
 
     <h3>Reviews</h3>
@@ -83,7 +106,7 @@ require __DIR__ . "/layout/header.php";
     <?php endif; ?>
     <?php if (auth_user()['role'] === 'admin'): ?>
       <h4>Admin: Grant / Revoke Overrides</h4>
-      <form method="post" action="/admin/api/grant_review_override.php">
+      <form method="post" action="../admin/api/grant_review_override.php">
         <input type="hidden" name="task_id" value="<?= e($id) ?>" />
         <label>User to grant:
           <input id="grant-user-search" placeholder="Search user name or email" autocomplete="off" />
@@ -92,7 +115,7 @@ require __DIR__ . "/layout/header.php";
         <div id="grant-suggestions" style="position:relative"></div>
         <button class="btn">Grant Override</button>
       </form>
-      <form method="post" action="/admin/api/revoke_review_override.php" style="margin-top:8px;">
+      <form method="post" action="../admin/api/revoke_review_override.php" style="margin-top:8px;">
         <input type="hidden" name="task_id" value="<?= e($id) ?>" />
         <label>User to revoke:
           <input id="revoke-user-search" placeholder="Search override user" autocomplete="off" />
@@ -101,7 +124,7 @@ require __DIR__ . "/layout/header.php";
         <div id="revoke-suggestions" style="position:relative"></div>
         <button class="btn">Revoke Override</button>
       </form>
-      <p style="margin-top:8px;"><a href="/admin/overrides.php">Manage all overrides</a></p>
+      <p style="margin-top:8px;"><a href="../admin/overrides.php">Manage all overrides</a></p>
     <?php endif; ?>
   </div>
 </main>

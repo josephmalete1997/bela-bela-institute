@@ -36,10 +36,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       if (!empty($app["intake_id"]) && $u) {
         db()->prepare("INSERT IGNORE INTO enrollments(user_id,intake_id,status) VALUES(?,?,'enrolled')")
           ->execute([(int)$u["id"], (int)$app["intake_id"]]);
+
+        $enrollment_id = db()->lastInsertId();
+
+        // Get course fee
+        $fee_stmt = db()->prepare("SELECT c.fee FROM intakes i JOIN courses c ON c.id = i.course_id WHERE i.id = ?");
+        $fee_stmt->execute([(int)$app["intake_id"]]);
+        $fee = $fee_stmt->fetchColumn();
+
+        if ($fee > 0) {
+            db()->prepare("INSERT INTO payments(enrollment_id, amount, status) VALUES(?, ?, 'pending')")->execute([$enrollment_id, $fee]);
+        }
+      }
+
+      // Notify student
+      if ($u) {
+        db()->prepare("INSERT INTO notifications(user_id, title, message, link) VALUES(?, ?, ?, ?)")->execute([
+          (int)$u["id"],
+          'Application Approved',
+          'Your application has been approved. Check your enrollments for details.',
+          'student/tasks_board'
+        ]);
       }
 
     } elseif ($action === "reject") {
       db()->prepare("UPDATE applications SET status='rejected', admin_notes=? WHERE id=?")->execute([$notes,$id]);
+
+      // Notify student of rejection
+      $u = find_user_by_email($app["email"]);
+      if ($u) {
+        db()->prepare("INSERT INTO notifications(user_id, title, message, link) VALUES(?, ?, ?, ?)")->execute([
+          (int)$u["id"],
+          'Application Rejected',
+          'Your application has been rejected. Please contact us for more information.',
+          'student/portal'
+        ]);
+      }
     }
   }
 

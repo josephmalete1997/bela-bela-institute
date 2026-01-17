@@ -11,31 +11,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $count = 0;
     while (($row = fgetcsv($f)) !== false) {
       $data = array_combine($header, $row);
-      // expected columns: title, type, description, course_id, status
+      // expected columns: title, type, description, course_id, status, assigned_user_id, position, url, submitter_id
       $task = [
         'title' => $data['title'] ?? 'Untitled',
         'type' => $data['type'] ?? 'project',
         'description' => $data['description'] ?? null,
         'course_id' => isset($data['course_id']) ? (int)$data['course_id'] : null,
-        'submitter_id' => null,
+        'submitter_id' => isset($data['submitter_id']) ? (int)$data['submitter_id'] : null,
         'assigned_user_id' => isset($data['assigned_user_id']) ? (int)$data['assigned_user_id'] : null,
         'status' => $data['status'] ?? 'backlog',
-        'position' => 0,
+        'position' => isset($data['position']) ? (int)$data['position'] : 0,
+        'url' => $data['url'] ?? null,
       ];
       require_once __DIR__ . "/../includes/tasks_model.php";
       tasks_create($task);
       $count++;
     }
     fclose($f);
-    redirect('tasks.php');
+    redirect('task_list.php');
   }
 }
 require __DIR__ . "/layout/header.php";
 ?>
 <main class="section"><div class="container">
   <h2>Import Tasks (CSV)</h2>
-  <p>Upload a CSV file with header: title,type,description,course_id,status,assigned_user_id</p>
+  <p>Upload a CSV file with header: title,type,description,course_id,status,assigned_user_id,position,url,submitter_id</p>
   <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
     <label>CSV file<input type="file" name="csv" accept="text/csv" required></label>
     <button class="btn">Import</button>
   </form>

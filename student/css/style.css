@@ -28,6 +28,8 @@ body.student-portal{background:linear-gradient(180deg,#f8fafc, #ffffff);color:#0
 .kanban-column{flex:1;min-width:220px;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #eef2f7}
 .kanban-column h3{text-transform:capitalize;margin-top:0}
 .kanban-list{min-height:80px}
+.kanban-card.card-topic{border-left:4px solid #f97316; background-color: rgba(249, 115, 22, 0.05)} /* light orange background */
+.kanban-card.card-project{border-left:4px solid #a855f7; background-color: rgba(168, 85, 247, 0.05)} /* light purple background */
 .kanban-card{background:#fff;padding:12px;border-radius:10px;border:1px solid #e6eef8;margin-bottom:10px;box-shadow:0 6px 14px rgba(2,6,23,0.03)}
 .kanban-card .meta{font-size:0.85rem;color:var(--muted);margin-top:6px}
 

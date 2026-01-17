@@ -310,7 +310,7 @@
                 <button id="notifMarkAll" class="btn" style="padding:6px 8px;background:#64748b">Mark all read</button>
               </div>
               <div id="notifList">Loading…</div>
-              <div style="text-align:center;margin-top:8px;"><a href="/notifications.php">View all</a></div>
+              <div style="text-align:center;margin-top:8px;"><a href="notifications.php">View all</a></div>
             </div>
           </li>
           <?php endif; ?>

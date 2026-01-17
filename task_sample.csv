@@ -1,0 +1,2 @@
+title,type,description,course_id,status,assigned_user_id,position,url,submitter_id
+"Anatomy of web development part 1",topic,"This topic covers the fundamental anatomy of web development, including HTML structure, CSS styling, and JavaScript interactivity.",1,backlog,,0,"https://example.com/web-dev-anatomy",1

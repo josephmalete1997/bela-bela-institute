@@ -16,7 +16,7 @@
         <a href="#why">Why Us</a>
         <a href="#apply">Apply</a>
         <a href="#contact">Contact</a>
-        <a href="/sitemap.php">Sitemap</a>
+        <a href="sitemap.php">Sitemap</a>
       </div>
 
       <div class="footer-copy">
@@ -140,7 +140,34 @@
   }
 }
 
+.back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: white;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1000;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 </style>
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top">↑</button>
   <script src="js/main.js"></script>
 </body>
 </html>

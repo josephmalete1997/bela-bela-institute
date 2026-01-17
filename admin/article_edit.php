@@ -60,9 +60,9 @@ require __DIR__ . "/layout/header.php";
         <textarea name="excerpt"><?= e($article['excerpt'] ?? '') ?></textarea>
       </label>
 
-      <label>Content
-        <textarea name="content" rows="12"><?= e($article['content'] ?? '') ?></textarea>
-      </label>
+      <label>Content</label>
+      <div id="quill-content" style="min-height:400px;"></div>
+      <input type="hidden" name="content" id="content-hidden" />
 
       <label>Featured image
         <input type="file" name="featured_image" accept="image/*">
@@ -88,16 +88,33 @@ require __DIR__ . "/layout/header.php";
 </div>
 <?php require __DIR__ . "/layout/footer.php";
 ?>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Quill Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-  tinymce.init({
-    selector: 'textarea[name="content"]',
-    menubar: false,
-    height: 420,
-    plugins: 'link image media code lists table',
-    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image media | code',
-    content_css: '/css/style.css',
-    relative_urls: false,
-    remove_script_host: false
+  var quill = new Quill('#quill-content', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link', 'image'],
+        ['blockquote', 'code-block'],
+        ['clean']
+      ]
+    },
+    placeholder: 'Write your article content here...'
+  });
+  
+  // Set initial content
+  <?php if (!empty($article['content'])): ?>
+    quill.root.innerHTML = <?= json_encode($article['content']) ?>;
+  <?php endif; ?>
+  
+  // Update hidden input on form submit
+  document.querySelector('form').addEventListener('submit', function(e) {
+    document.getElementById('content-hidden').value = quill.root.innerHTML;
   });
 </script>

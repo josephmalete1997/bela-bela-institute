@@ -2,7 +2,7 @@
 <?php require_role("student"); ?>
 
 <?php
-header('Location: /student/portal.php'); exit;
+header('Location: ./portal.php'); exit;
 ?>
 
 <!doctype html>

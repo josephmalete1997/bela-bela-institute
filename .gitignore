@@ -1,0 +1,50 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+app/logs/
+
+# Uploads (optional - uncomment if you don't want to track uploads)
+# /uploads/
+# /public/uploads/
+# /student/avatars/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.sqlite
+*.db
+
+# Cache
+cache/
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# PHP
+.phpunit.result.cache
