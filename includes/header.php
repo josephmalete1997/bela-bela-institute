@@ -14,7 +14,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600;700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css" />
   <?php if (!empty($meta_og_title) || !empty($meta_og_image) || !empty($meta_og_description)): ?>
@@ -40,9 +40,9 @@
 
     /* Announcement bar (optional styling) */
     .announce {
-      background: #0b1220;
-      color: #e2e8f0;
-      font-family: 'Poppins', system-ui, sans-serif;
+      background: var(--brand);
+      color: #fff;
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
       font-size: 0.9rem;
     }
 
@@ -59,7 +59,7 @@
     }
 
     .announce-link {
-      color: #38bdf8;
+      color: #fff;
       text-decoration: none;
       font-weight: 600;
     }
@@ -74,8 +74,8 @@
       top: 0;
       z-index: 1000;
       background: #ffffff;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-      font-family: 'Poppins', system-ui, sans-serif;
+      border-bottom: 1px solid var(--line);
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
     }
 
     /* Header layout */
@@ -112,7 +112,7 @@
     }
 
     .nav-menu a {
-      color: #0f172a;
+      color: var(--text);
       text-decoration: none;
       font-size: 0.92rem;
       font-weight: 500;
@@ -129,12 +129,12 @@
       bottom: -6px;
       width: 0;
       height: 2px;
-      background: #38bdf8;
+      background: var(--brand);
       transition: width 0.25s ease;
     }
 
     .nav-menu a:hover {
-      color: #0284c7;
+      color: var(--brand);
     }
 
     .nav-menu a:hover::after {
@@ -146,19 +146,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
+      border-radius: 999px;
       padding: 0.75rem 1.1rem;
       font-weight: 600;
-      border: 1px solid rgba(2, 132, 199, 0.2);
-      background: #0ea5e9;
+      border: 1px solid rgba(165, 28, 48, 0.3);
+      background: var(--brand);
       color: #fff !important;
-      box-shadow: 0 10px 20px rgba(2, 132, 199, 0.12);
+      box-shadow: 0 12px 24px rgba(17, 24, 39, 0.14);
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
 
     .btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(2, 132, 199, 0.18);
+      box-shadow: 0 18px 32px rgba(15, 118, 110, 0.2);
     }
 
     .btn-small {
@@ -172,7 +172,7 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      border: 1px solid rgba(15, 23, 42, 0.12);
+      border: 1px solid var(--line);
       background: #ffffff;
       cursor: pointer;
       padding: 10px;
@@ -181,7 +181,7 @@
     .nav-toggle span {
       display: block;
       height: 2px;
-      background: #0f172a;
+      background: var(--text);
       border-radius: 999px;
       margin: 6px 0;
       transition: transform 0.2s ease, opacity 0.2s ease;
@@ -206,10 +206,10 @@
         top: 100%;
         right: 1.5rem;
         left: 1.5rem;
-        background: #ffffff;
-        border: 1px solid rgba(15, 23, 42, 0.10);
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--line);
         border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        box-shadow: 0 20px 40px rgba(11, 18, 32, 0.12);
         padding: 0.9rem;
         display: none;
         /* hidden by default */
@@ -233,8 +233,8 @@
       }
 
       .nav-menu a:hover {
-        background: rgba(14, 165, 233, 0.08);
-        color: #0284c7;
+        background: rgba(165, 28, 48, 0.08);
+        color: var(--brand);
       }
 
       .nav-menu .btn {
@@ -268,14 +268,14 @@
   <div class="announce">
     <div class="container announce-inner">
       <p><strong>New Intake Open:</strong> Weekend + Evening classes available • Certificates included</p>
-      <a class="announce-link" href="apply">Apply Now</a>
+      <a class="announce-link" href="apply.php">Apply Now</a>
     </div>
   </div>
 
   <!-- Header -->
   <header class="header">
     <div class="container header-inner">
-      <img src="images/logo.png" alt="logo image" width="20%">
+      <img src="images/logo.png" alt="Bela-Bela Institute logo" width="20%">
 
       <nav class="nav" aria-label="Main navigation">
         <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu">
@@ -284,13 +284,12 @@
 
         <ul class="nav-menu" id="navMenu">
           <li><a href="./">Home</a></li>
-          <li><a href="#courses">Courses</a></li>
-          <li><a href="#why">Why Us</a></li>
-          <li><a href="#how">How It Works</a></li>
-          <li><a href="#testimonials">Testimonials</a></li>
+          <li><a href="about.php">About</a></li>
+          <li><a href="programs.php">Programs</a></li>
+          <li><a href="admissions.php">Admissions</a></li>
           <li><a href="articles.php">News</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a class="btn btn-small" href="apply">Apply</a></li>
+          <li><a href="contact.php">Contact</a></li>
+          <li><a class="btn btn-small" href="apply.php">Apply</a></li>
           <?php if (function_exists('is_logged_in') && is_logged_in()):
             $uid = auth_user()['id'];
             $cnt = 0;

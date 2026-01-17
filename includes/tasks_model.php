@@ -9,6 +9,20 @@ function tasks_find_all_by_status(string $status): array {
   return $stmt->fetchAll();
 }
 
+function tasks_find_all_for_user(int $user_id): array {
+  $stmt = db()->prepare("
+    SELECT t.*,
+      COALESCE(tp.status, 'backlog') AS user_status,
+      COALESCE(tp.position, t.position) AS user_position
+    FROM tasks t
+    LEFT JOIN task_progress tp
+      ON tp.task_id = t.id AND tp.user_id = :uid
+    ORDER BY user_position ASC, t.created_at DESC
+  ");
+  $stmt->execute([':uid'=>$user_id]);
+  return $stmt->fetchAll();
+}
+
 function tasks_find(int $id): ?array {
   $stmt = db()->prepare("SELECT * FROM tasks WHERE id = :id LIMIT 1");
   $stmt->execute([':id'=>$id]);
@@ -59,6 +73,36 @@ function tasks_update_status_and_position(int $id, string $status, int $position
   return $ok;
 }
 
+function tasks_update_status_for_user(int $task_id, int $user_id, string $status, int $position = 0): bool {
+  $stmt = db()->prepare("
+    INSERT INTO task_progress (task_id, user_id, status, position)
+    VALUES (:tid, :uid, :s, :p)
+    ON DUPLICATE KEY UPDATE status=VALUES(status), position=VALUES(position)
+  ");
+  $ok = $stmt->execute([':tid'=>$task_id, ':uid'=>$user_id, ':s'=>$status, ':p'=>$position]);
+  if ($ok && $status === 'in_review') {
+    require_once __DIR__ . "/../app/helpers.php";
+    $t = tasks_find($task_id);
+    $course_id = $t['course_id'] ?? null;
+    if ($course_id) {
+      $pdo = db();
+      $stmtu = $pdo->prepare("SELECT DISTINCT u.id FROM users u LEFT JOIN tasks tt ON tt.submitter_id = u.id AND tt.course_id = :cid WHERE (tt.status = 'completed' AND tt.type = 'project') OR u.role = 'admin'");
+      $stmtu->execute([':cid'=>$course_id]);
+      $users = $stmtu->fetchAll();
+      $ovs = tasks_list_overrides_for_task($task_id);
+      $override_ids = array_map(function($r){ return (int)$r['user_id']; }, $ovs);
+      foreach ($users as $u) {
+        $uid = (int)($u['id'] ?? 0);
+        if ($uid) notify_user($uid, 'Review requested', 'A project is awaiting review: #'.$task_id, '/student/task_view.php?id='.$task_id.'&submitter_id='.$user_id);
+      }
+      foreach ($override_ids as $uid) {
+        if ($uid) notify_user($uid, 'Review requested (override)', 'You have been allowed to review project #'.$task_id, '/student/task_view.php?id='.$task_id.'&submitter_id='.$user_id);
+      }
+    }
+  }
+  return $ok;
+}
+
 function tasks_update(int $id, array $data): bool {
   $stmt = db()->prepare("UPDATE tasks SET title=:title,type=:type,description=:description,assigned_user_id=:assigned_user_id,status=:status,url=:url WHERE id = :id");
   return $stmt->execute([
@@ -81,7 +125,7 @@ function tasks_list_statuses(): array {
   return ['backlog','studying','in_review','review_feedback','completed'];
 }
 
-function tasks_add_review(int $task_id, int $reviewer_id, string $comment, ?bool $is_competent): int {
+function tasks_add_review(int $task_id, int $submitter_id, int $reviewer_id, string $comment, ?bool $is_competent): int {
   // Only allow reviewers who have completed a relevant project for the same course, or admins
   $stmt = db()->prepare("SELECT role FROM users WHERE id = :id LIMIT 1");
   $stmt->execute([':id' => $reviewer_id]);
@@ -103,8 +147,8 @@ function tasks_add_review(int $task_id, int $reviewer_id, string $comment, ?bool
     }
   }
 
-  $stmt = db()->prepare("INSERT INTO task_reviews (task_id,reviewer_id,comment,is_competent) VALUES (:task_id,:reviewer_id,:comment,:is_competent)");
-  $stmt->execute([':task_id'=>$task_id,':reviewer_id'=>$reviewer_id,':comment'=>$comment,':is_competent'=>is_null($is_competent)?null:($is_competent?1:0)]);
+  $stmt = db()->prepare("INSERT INTO task_reviews (task_id,submitter_id,reviewer_id,comment,is_competent) VALUES (:task_id,:submitter_id,:reviewer_id,:comment,:is_competent)");
+  $stmt->execute([':task_id'=>$task_id,':submitter_id'=>$submitter_id,':reviewer_id'=>$reviewer_id,':comment'=>$comment,':is_competent'=>is_null($is_competent)?null:($is_competent?1:0)]);
   return (int)db()->lastInsertId();
 }
 
@@ -163,8 +207,29 @@ function tasks_list_overrides_for_task(int $task_id): array {
   return $stmt->fetchAll();
 }
 
-function tasks_get_reviews(int $task_id): array {
-  $stmt = db()->prepare("SELECT tr.*, u.full_name as reviewer_name FROM task_reviews tr LEFT JOIN users u ON u.id = tr.reviewer_id WHERE tr.task_id = :id ORDER BY tr.created_at DESC");
-  $stmt->execute([':id'=>$task_id]);
+function tasks_get_reviews(int $task_id, ?int $submitter_id = null): array {
+  if ($submitter_id) {
+    $stmt = db()->prepare("SELECT tr.*, u.full_name as reviewer_name FROM task_reviews tr LEFT JOIN users u ON u.id = tr.reviewer_id WHERE tr.task_id = :id AND tr.submitter_id = :sid ORDER BY tr.created_at DESC");
+    $stmt->execute([':id'=>$task_id, ':sid'=>$submitter_id]);
+  } else {
+    $stmt = db()->prepare("SELECT tr.*, u.full_name as reviewer_name FROM task_reviews tr LEFT JOIN users u ON u.id = tr.reviewer_id WHERE tr.task_id = :id ORDER BY tr.created_at DESC");
+    $stmt->execute([':id'=>$task_id]);
+  }
   return $stmt->fetchAll();
+}
+
+function tasks_get_review_summary(int $task_id, int $submitter_id): array {
+  $stmt = db()->prepare("
+    SELECT
+      SUM(is_competent = 1) AS competent_count,
+      SUM(is_competent = 0) AS not_competent_count
+    FROM task_reviews
+    WHERE task_id = :id AND submitter_id = :sid
+  ");
+  $stmt->execute([':id'=>$task_id, ':sid'=>$submitter_id]);
+  $row = $stmt->fetch() ?: [];
+  return [
+    'competent' => (int)($row['competent_count'] ?? 0),
+    'not_competent' => (int)($row['not_competent_count'] ?? 0),
+  ];
 }

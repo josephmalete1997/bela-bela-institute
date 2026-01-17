@@ -15,6 +15,19 @@ echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 // homepage
 echo "  <url>\n    <loc>{$base}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n";
 
+// static pages
+$staticPages = [
+  '/about.php',
+  '/programs.php',
+  '/admissions.php',
+  '/articles.php',
+  '/contact.php',
+  '/apply.php',
+];
+foreach ($staticPages as $page) {
+  echo "  <url>\n    <loc>{$base}{$page}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n";
+}
+
 foreach ($articles as $a) {
   $loc = $base . '/article.php?slug=' . urlencode($a['slug']);
   $last = date('Y-m-d', strtotime($a['published_at'] ?? $a['created_at']));

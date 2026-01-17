@@ -8,7 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $task_id = (int)($_POST['task_id'] ?? 0);
     $new_status = $_POST['new_status'] ?? '';
     if ($task_id && in_array($new_status, ['studying', 'in_review', 'completed'], true)) {
-        tasks_update($task_id, ['status' => $new_status]);
+        $user_id = (int)($_SESSION['user']['id'] ?? 0);
+        if ($user_id) {
+            tasks_update_status_for_user($task_id, $user_id, $new_status, 0);
+        }
     }
     redirect('tasks_board.php');
 }
@@ -28,10 +31,11 @@ $stmt->execute([$user_id]);
 $enrolled_course_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 $board = [];
+$all_tasks = tasks_find_all_for_user($user_id);
 foreach ($statuses as $s) {
-    $tasks = tasks_find_all_by_status($s);
-    // Filter tasks to only those for enrolled courses or general tasks (no course_id)
-    $board[$s] = array_filter($tasks, function($task) use ($enrolled_course_ids) {
+    $board[$s] = array_filter($all_tasks, function($task) use ($enrolled_course_ids, $s) {
+        $status = $task['user_status'] ?? ($task['status'] ?? 'backlog');
+        if ($status !== $s) return false;
         return $task['course_id'] === null || in_array($task['course_id'], $enrolled_course_ids);
     });
 }
@@ -42,34 +46,35 @@ require __DIR__ . "/layout/header.php";
   <div class="container">
     <h2>Your Tasks & Peer Review</h2>
 
-    <div id="board" style="display:flex;gap:12px;margin-top:12px;align-items:flex-start;">
+    <div id="board" class="kanban-board">
       <?php foreach ($board as $col => $cards): ?>
-        <section class="kanban-column" data-col="<?= e($col) ?>" style="flex:1;min-width:220px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #eef2f7;">
-          <h3 style="margin-top:0;text-transform:capitalize;"><?= e($col) ?></h3>
-          <div class="kanban-list" data-col="<?= e($col) ?>" style="min-height:80px;">
+        <section class="kanban-column" data-col="<?= e($col) ?>">
+          <h3><?= e($col) ?></h3>
+          <div class="kanban-list" data-col="<?= e($col) ?>">
             <?php foreach ($cards as $card): ?>
-              <div class="kanban-card <?= $card['type'] === 'topic' ? 'card-topic' : 'card-project' ?>" draggable="true" data-id="<?= (int)$card['id'] ?>" style="padding:10px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px;box-shadow:0 6px 14px rgba(2,6,23,0.03);">
-                <strong><?= e($card['title']) ?></strong>
-                <div style="font-size:0.85rem;color:#64748b;margin-top:6px;">Type: <?= e($card['type']) ?> • By: <?= e((string)($card['submitter_id'] ?? '')) ?></div>
+              <?php $card_status = $card['user_status'] ?? ($card['status'] ?? 'backlog'); ?>
+              <div class="kanban-card <?= $card['type'] === 'topic' ? 'card-topic' : 'card-project' ?>" draggable="true" data-id="<?= (int)$card['id'] ?>">
+                <strong class="kanban-card-title"><?= e($card['title'] ?: 'Untitled Task') ?></strong>
+                <div class="kanban-meta">Type: <?= e($card['type']) ?> • By: <?= e((string)($card['submitter_id'] ?? '')) ?></div>
                 <?php if ($card['type'] === 'project'): ?>
                   <?php
                   $stmt_rev = db()->prepare("SELECT u.email FROM task_reviews tr JOIN users u ON u.id = tr.reviewer_id WHERE tr.task_id = ?");
                   $stmt_rev->execute([$card['id']]);
                   $reviewers = $stmt_rev->fetchAll(PDO::FETCH_COLUMN);
                   if ($reviewers): ?>
-                    <div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Reviewers: <?= implode(', ', array_map('e', $reviewers)) ?></div>
+                    <div class="kanban-meta reviewers">Reviewers: <?= implode(', ', array_map('e', $reviewers)) ?></div>
                   <?php endif; ?>
                 <?php endif; ?>
-                <div style="margin-top:8px;font-size:0.8rem;">
-                  <a href="task_view.php?id=<?= (int)$card['id'] ?>" class="btn btn-small" style="margin-right:4px;">View</a>
-                  <?php if ($card['status'] === 'backlog'): ?>
+                <div class="kanban-actions">
+                  <a href="task_view.php?id=<?= (int)$card['id'] ?>" class="btn btn-small">View</a>
+                  <?php if ($card_status === 'backlog'): ?>
                     <form method="post" style="display:inline;">
                       <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
                       <input type="hidden" name="task_id" value="<?= (int)$card['id'] ?>">
                       <input type="hidden" name="new_status" value="studying">
                       <button type="submit" class="btn btn-small">Start Task</button>
                     </form>
-                  <?php elseif ($card['status'] === 'studying'): ?>
+                  <?php elseif ($card_status === 'studying'): ?>
                     <?php if ($card['type'] === 'topic'): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
@@ -85,8 +90,8 @@ require __DIR__ . "/layout/header.php";
                         <button type="submit" class="btn btn-small">Move to Review</button>
                       </form>
                     <?php endif; ?>
-                  <?php elseif ($card['status'] === 'in_review'): ?>
-                    <a href="task_view.php?id=<?= (int)$card['id'] ?>" class="btn btn-small">Review</a>
+                  <?php elseif ($card_status === 'in_review'): ?>
+                    <a href="task_view.php?id=<?= (int)$card['id'] ?>&submitter_id=<?= (int)$user_id ?>" class="btn btn-small">Review</a>
                   <?php endif; ?>
                 </div>
               </div>

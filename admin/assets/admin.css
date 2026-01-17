@@ -18,7 +18,7 @@ body.admin-body {
 
 /* Sidebar */
 .admin-sidebar {
-  background: linear-gradient(180deg, #0ea5e9, #2563eb);
+  background: #0ea5e9;
   color: #ffffff;
   padding: 1.5rem 1rem;
   position: sticky;
@@ -146,7 +146,7 @@ body.admin-body {
 }
 
 .btn-primary {
-  background: linear-gradient(90deg,#0ea5e9,#2563eb);
+  background: #0ea5e9;
   color: #ffffff;
   box-shadow: 0 8px 30px rgba(37,99,235,0.08);
 }

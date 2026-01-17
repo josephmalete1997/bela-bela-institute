@@ -5,21 +5,21 @@ $heroSlides = [
     "lead" => "Practical training in Software Development, Data, Networking, Cybersecurity, and Digital Skills.",
     "background" => "images/hero.png",
     "cta_primary" => ["label" => "Apply Now", "link" => "apply.php"],
-    "cta_secondary" => ["label" => "View Courses", "link" => "#courses"],
+    "cta_secondary" => ["label" => "View Programs", "link" => "programs.php"],
   ],
   [
     "title" => "Learn by Doing. Not Just Watching.",
     "lead" => "Hands-on projects, mentor support, and real-world tools to build confidence fast.",
     "background" => "images/a1.png",
     "cta_primary" => ["label" => "Start Learning", "link" => "apply.php"],
-    "cta_secondary" => ["label" => "How It Works", "link" => "#how"],
+    "cta_secondary" => ["label" => "Admissions", "link" => "admissions.php"],
   ],
   [
     "title" => "Flexible ICT Courses for Real Life.",
     "lead" => "Weekend and evening classes designed for working learners and students.",
     "background" => "images/a2.png",
     "cta_primary" => ["label" => "Join the Next Intake", "link" => "apply.php"],
-    "cta_secondary" => ["label" => "Contact Us", "link" => "#contact"],
+    "cta_secondary" => ["label" => "Contact Us", "link" => "contact.php"],
   ],
 ];
 
@@ -41,7 +41,7 @@ $heroSlides = [
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #020617;
+  background: #0b1220;
   isolation: isolate;
 }
 
@@ -51,13 +51,7 @@ $heroSlides = [
   position:absolute;
   inset:0;
   pointer-events:none;
-  background: linear-gradient(
-    180deg,
-    rgba(2,6,23,0.25),
-    rgba(2,6,23,0) 30%,
-    rgba(2,6,23,0) 70%,
-    rgba(2,6,23,0.35)
-  );
+  background: rgba(2,6,23,0.35);
   z-index: 2;
 }
 
@@ -94,9 +88,7 @@ $heroSlides = [
 .slide-overlay{
   position:absolute;
   inset:0;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(2,6,23,.25), rgba(2,6,23,.88)),
-    linear-gradient(180deg, rgba(2,6,23,.35), rgba(2,6,23,.70));
+  background: rgba(2, 6, 23, 0.65);
   z-index: 0;
 }
 
@@ -179,7 +171,7 @@ $heroSlides = [
 .dot:hover{ transform: translateY(-1px); }
 .dot.active{
   width: 26px;
-  background: #0ea5e9;
+  background: var(--brand);
 }
 
 /* arrows */
@@ -192,8 +184,8 @@ $heroSlides = [
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(2,6,23,.35);
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(2, 6, 23, 0.4);
   color: #fff;
   cursor:pointer;
   display:grid;
@@ -204,7 +196,7 @@ $heroSlides = [
 }
 
 .slider-arrow:hover{
-  background: rgba(2,6,23,.55);
+  background: rgba(2, 6, 23, 0.6);
   border-color: rgba(255,255,255,.28);
   transform: translateY(-50%) scale(1.03);
 }

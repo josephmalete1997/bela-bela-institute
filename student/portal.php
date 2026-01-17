@@ -10,7 +10,6 @@ require __DIR__ . "/layout/header.php";
 
   <div class="panel-grid" style="margin-top:16px;">
     <a class="card" href="tasks_board.php" style="text-decoration:none;color:inherit;"><div style="font-size:22px;color:var(--accent)"><i class="fa fa-clipboard-list"></i></div><h3>My Tasks</h3><p>Submit and track assignments.</p></a>
-    <a class="card" href="task_submit.php" style="text-decoration:none;color:inherit;"><div style="font-size:22px;color:var(--accent)"><i class="fa fa-upload"></i></div><h3>Submit Project</h3><p>Create a new submission for review.</p></a>
     <a class="card" href="profile.php" style="text-decoration:none;color:inherit;"><div style="font-size:22px;color:var(--accent)"><i class="fa fa-user"></i></div><h3>Profile</h3><p>View and edit your profile.</p></a>
     <a class="card" href="../notifications.php" style="text-decoration:none;color:inherit;"><div style="font-size:22px;color:var(--accent)"><i class="fa fa-bell"></i></div><h3>Notifications</h3><p>View your notifications.</p></a>
   </div>

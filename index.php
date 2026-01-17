@@ -26,8 +26,8 @@ $courses    = $courses ?? [];
                 $cta1Label = (string)($slide['cta_primary']['label'] ?? 'Apply Now');
                 $cta1Link  = (string)($slide['cta_primary']['link'] ?? 'apply.php');
 
-                $cta2Label = (string)($slide['cta_secondary']['label'] ?? 'View Courses');
-                $cta2Link  = (string)($slide['cta_secondary']['link'] ?? '#courses');
+                $cta2Label = (string)($slide['cta_secondary']['label'] ?? 'View Programs');
+                $cta2Link  = (string)($slide['cta_secondary']['link'] ?? 'programs.php');
                 ?>
 
                 <div
@@ -85,17 +85,16 @@ $courses    = $courses ?? [];
             </div>
         </div>
     </section>
-
-    <!-- Courses -->
-    <section class="section" id="courses">
+    <!-- Featured Programs -->
+    <section class="section" id="programs">
         <div class="container">
             <div class="section-head">
-                <h2>Upskilling ICT Courses</h2>
-                <p>Choose a track that matches your goals. Short courses designed to get you building fast.</p>
+                <h2>Featured Programs</h2>
+                <p>Focused, career-ready programs designed to build practical ICT skills.</p>
             </div>
 
             <div class="grid cards">
-                <?php foreach ($courses as $course): ?>
+                <?php foreach (array_slice($courses, 0, 3) as $course): ?>
                     <article class="card" id="<?= htmlspecialchars($course['id'] ?? '') ?>">
                         <img
                             src="<?= htmlspecialchars($course['image'] ?? '') ?>"
@@ -105,121 +104,84 @@ $courses    = $courses ?? [];
                         <h3><?= htmlspecialchars($course['title'] ?? '') ?></h3>
                         <p><?= htmlspecialchars($course['description'] ?? '') ?></p>
                         <p><strong>Fee: R<?= number_format($course['fee'] ?? 0, 2) ?></strong></p>
-
-                        <?php if (!empty($course['highlights']) && is_array($course['highlights'])): ?>
-                            <ul class="mini">
-                                <?php foreach ($course['highlights'] as $item): ?>
-                                    <li><?= htmlspecialchars((string)$item) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             </div>
 
             <div class="note">
-                <strong>Need help choosing?</strong> Tell us your goal and we’ll recommend the best track for you.
-                <a href="#contact">Talk to us →</a>
+                <strong>Explore all offerings.</strong> View the full program list and intake dates.
+                <a href="programs.php">View programs</a>
             </div>
         </div>
     </section>
 
-    <!-- Why Us -->
-    <section class="section alt" id="why">
+    <!-- Student Experience -->
+    <section class="section alt" id="experience">
         <div class="container">
             <div class="section-head">
-                <h2>Why Bela-Bela Institute?</h2>
-                <p>We focus on practical learning that translates into real opportunities.</p>
+                <h2>Student Experience</h2>
+                <p>Practical learning, structured support, and clear pathways to outcomes.</p>
             </div>
 
             <div class="grid two">
                 <div class="panel">
-                    <h3>Learn by Doing</h3>
-                    <p>Hands-on tasks, projects, and guided practice—so you don’t just watch, you build.</p>
+                    <h3>Applied Learning</h3>
+                    <p>Hands-on tasks and projects that mirror real workplace scenarios.</p>
                 </div>
                 <div class="panel">
-                    <h3>Support That Matters</h3>
-                    <p>Mentors and structured lessons that help you stay consistent and confident.</p>
+                    <h3>Guided Support</h3>
+                    <p>Mentor feedback, structured lessons, and consistent academic guidance.</p>
                 </div>
                 <div class="panel">
-                    <h3>Flexible Options</h3>
-                    <p>Weekend and evening classes designed for working learners and busy schedules.</p>
+                    <h3>Flexible Scheduling</h3>
+                    <p>Weekday and weekend options built for working learners.</p>
                 </div>
                 <div class="panel">
                     <h3>Career Focus</h3>
-                    <p>CV-ready projects, interview practice, and guidance on entry-level ICT pathways.</p>
+                    <p>Portfolio-ready work and career readiness support.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How it works -->
-    <section class="section" id="how">
+    <!-- Admissions -->
+    <section class="section" id="admissions">
         <div class="container">
             <div class="section-head">
-                <h2>How It Works</h2>
-                <p>A simple path from interest to skills to outcomes.</p>
+                <h2>Admissions at a Glance</h2>
+                <p>A simple, guided application process with clear next steps.</p>
             </div>
 
             <div class="steps">
                 <div class="step">
                     <div class="step-num">1</div>
-                    <h3>Apply</h3>
-                    <p>Fill in the quick form. We’ll contact you with options and next steps.</p>
+                    <h3>Apply Online</h3>
+                    <p>Complete the online application form with your program selection.</p>
                 </div>
                 <div class="step">
                     <div class="step-num">2</div>
-                    <h3>Choose a Track</h3>
-                    <p>Pick a course based on your goal: job, business, or skills upgrade.</p>
+                    <h3>Review &amp; Guidance</h3>
+                    <p>Our team reviews your application and confirms requirements.</p>
                 </div>
                 <div class="step">
                     <div class="step-num">3</div>
-                    <h3>Train &amp; Build</h3>
-                    <p>Attend sessions, complete projects, and get feedback to improve.</p>
+                    <h3>Enroll</h3>
+                    <p>Choose an intake and confirm your place.</p>
                 </div>
                 <div class="step">
                     <div class="step-num">4</div>
-                    <h3>Get Certified</h3>
-                    <p>Earn a certificate and leave with practical outcomes you can show.</p>
+                    <h3>Start Learning</h3>
+                    <p>Begin classes with access to materials and student support.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Contact -->
-    <section class="section alt" id="contact">
+    <section class="section alt" id="contact-cta">
         <div class="container">
-            <div class="contact">
-                <div>
-                    <h2>Contact</h2>
-                    <p>Reach out for course dates, fees, and class schedules.</p>
-
-                    <div class="contact-grid">
-                        <div class="contact-item">
-                            <h3>WhatsApp / Phone</h3>
-                            <p><a href="tel:+27000000000">+27 00 000 0000</a></p>
-                            <small>Replace with your number</small>
-                        </div>
-                        <div class="contact-item">
-                            <h3>Email</h3>
-                            <p><a href="mailto:info@belabelainstitute.co.za">info@belabelainstitute.co.za</a></p>
-                            <small>Replace with your email</small>
-                        </div>
-                        <div class="contact-item">
-                            <h3>Location</h3>
-                            <p>Bela-Bela, Limpopo</p>
-                            <small>Add your full address if you want</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="map">
-                    <div class="map-placeholder">
-                        <h3>Find Us</h3>
-                        <p>Add a Google Maps embed here when ready.</p>
-                        <code>&lt;iframe ...&gt;&lt;/iframe&gt;</code>
-                    </div>
-                </div>
+            <div class="note">
+                <strong>Have questions?</strong> Talk to our admissions team for guidance.
+                <a href="contact.php">Contact us</a>
             </div>
         </div>
     </section>

@@ -31,7 +31,7 @@ $user = auth_user();
         <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="./../images/logo.png" alt="logo" width="100%">
+                <img src="./../images/logo.png" alt="Bela-Bela Institute logo" width="100%">
                 <span>Admin</span>
             </div>
 
