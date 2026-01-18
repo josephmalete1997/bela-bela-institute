@@ -31,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } else {
     if ($task['type'] === 'project') {
       $summary = tasks_get_review_summary($id, $submitter_id);
-      if ($summary['not_competent'] > 0) {
+      $reviewer_role = $role;
+      $is_competent_flag = isset($_POST['is_competent']);
+      if (!$is_competent_flag) {
+        tasks_update_status_for_user($id, $submitter_id, 'review_feedback', 0);
+      } elseif (in_array($reviewer_role, ['admin', 'educator'], true)) {
+        tasks_update_status_for_user($id, $submitter_id, 'completed', 0);
+      } elseif ($summary['not_competent'] > 0) {
         tasks_update_status_for_user($id, $submitter_id, 'review_feedback', 0);
       } elseif ($summary['competent'] >= 3) {
         tasks_update_status_for_user($id, $submitter_id, 'completed', 0);
