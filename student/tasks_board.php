@@ -19,16 +19,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $statuses = tasks_list_statuses();
 
 // Get enrolled course IDs for the current student
-$user_id = $_SESSION['user']['id'];
-$stmt = db()->prepare("
-    SELECT DISTINCT c.id 
-    FROM enrollments e 
-    JOIN intakes i ON e.intake_id = i.id 
-    JOIN courses c ON i.course_id = c.id 
-    WHERE e.user_id = ? AND e.status = 'enrolled'
-");
-$stmt->execute([$user_id]);
-$enrolled_course_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$user = auth_user();
+$user_id = (int)($user['id'] ?? 0);
+if (!$user_id) {
+    redirect("../public/login.php");
+}
+
+$enrolled_course_ids = [];
+try {
+    $stmt = db()->prepare("
+        SELECT DISTINCT c.id 
+        FROM enrollments e 
+        JOIN intakes i ON e.intake_id = i.id 
+        JOIN courses c ON i.course_id = c.id 
+        WHERE e.user_id = ? AND e.status = 'enrolled'
+    ");
+    $stmt->execute([$user_id]);
+    $enrolled_course_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Throwable $e) {
+    log_error("Failed to load enrolled courses", ["user_id" => $user_id, "error" => $e->getMessage()]);
+}
 
 $board = [];
 $all_tasks = tasks_find_all_for_user($user_id);

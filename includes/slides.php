@@ -78,6 +78,15 @@ $heroSlides = [
   will-change: opacity, transform;
 }
 
+.slide-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
 .slide.active{
   opacity:1;
   transform: scale(1);
@@ -89,7 +98,7 @@ $heroSlides = [
   position:absolute;
   inset:0;
   background: rgba(2, 6, 23, 0.65);
-  z-index: 0;
+  z-index: 1;
 }
 
 .slide-overlay::after{
@@ -104,7 +113,7 @@ $heroSlides = [
 /* content */
 .slide-content{
   position: relative;
-  z-index: 3;
+  z-index: 2;
   max-width: 980px;
   padding: 0 1.5rem;
   text-align: center;

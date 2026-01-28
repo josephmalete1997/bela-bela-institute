@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'You can only message reviewers assigned to your submission.';
       } else {
         $sender = auth_user()['full_name'] ?? 'Student';
-        notify_user($reviewer_id, 'Message from ' . $sender, $message, '/student/task_view.php?id=' . $id . '&submitter_id=' . $submitter_id);
+        notify_user($reviewer_id, 'Message from ' . $sender, $message, '/task_view.php?id=' . $id . '&submitter_id=' . $submitter_id);
         redirect('task_view.php?id=' . $id . '&submitter_id=' . $submitter_id);
       }
     }

@@ -32,10 +32,16 @@ $courses    = $courses ?? [];
 
                 <div
                     class="slide <?= $index === 0 ? 'active' : '' ?>"
-                    style="background-image: url('<?= htmlspecialchars($bg) ?>');"
+                    style="background-image: url('<?= htmlspecialchars($bg ?: 'images/hero.png') ?>');"
                     role="group"
                     aria-roledescription="slide"
                     aria-label="Slide <?= $index + 1 ?>">
+                    <img
+                        class="slide-bg"
+                        src="<?= htmlspecialchars($bg ?: 'images/hero.png') ?>"
+                        alt=""
+                        aria-hidden="true"
+                        loading="<?= $index === 0 ? 'eager' : 'lazy' ?>">
                     <div class="slide-overlay" aria-hidden="true"></div>
 
                     <div class="slide-content">
